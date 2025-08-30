@@ -8,8 +8,9 @@ export async function POST(request: Request) {
   try {
     const { username, code } = await request.json();
     const decodedUsername = decodeURIComponent(username);
-    const user = await UserModel.findOne({ username: decodedUsername });
-
+    const user = await UserModel.findOne({
+      $or: [{ username: decodedUsername }, { email: decodedUsername }],
+    });
     if (!user) {
       return Response.json(
         {
@@ -34,16 +35,17 @@ export async function POST(request: Request) {
         },
         { status: 200 }
       );
-    }else if (!isCodeNotExpired) {
-        return Response.json(
+    } else if (!isCodeNotExpired) {
+      return Response.json(
         {
           success: false,
-          message: "Verification code has expired, please signup again to get a new code",
+          message:
+            "Verification code has expired, please signup again to get a new code",
         },
         { status: 400 }
       );
-    }else{
-        return Response.json(
+    } else {
+      return Response.json(
         {
           success: false,
           message: "Incorrect Verification code",
