@@ -27,7 +27,7 @@ const VerifyAccount = () => {
   const form = useForm<z.infer<typeof verifySchema>>({
     resolver: zodResolver(verifySchema),
     defaultValues: {
-      code: "", // 👈 this prevents uncontrolled→controlled issue
+      code: "", 
     },
   });
 
@@ -46,7 +46,7 @@ const VerifyAccount = () => {
       let errorMessage = axiosError.response?.data.message;
       toast.error(`Verification Failed: ${errorMessage ?? "Unknown error"}`);
     }
-  };
+  };   
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
