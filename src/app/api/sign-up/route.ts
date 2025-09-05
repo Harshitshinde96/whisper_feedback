@@ -65,7 +65,7 @@ export async function POST(request: Request) {
         verifyCode: verifyCode, // FIX: Was verifyCode.replace, now correctly assigns the code
         isVerified: false,
         verifyCodeExpiry: expiryDate,
-        isAcceptingMessage: true,
+        isAcceptingMessages: true,
         messages: [],
       });
 

@@ -34,10 +34,10 @@ const page = () => {
     setIsSwitchLoading(true);
     try {
       const response = await axios.get<ApiResponse>("api/accept-messages");
-      setValue("acceptMessages", response.data.isAcceptingMessage);
+      setValue("acceptMessages", response.data.isAcceptingMessages);
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
-      toast.error("Error", {
+      toast.error("Error1", {
         description:
           axiosError.response?.data.message ||
           "Failed to fetch message settings",
@@ -62,7 +62,7 @@ const page = () => {
         }
       } catch (error) {
         const axiosError = error as AxiosError<ApiResponse>;
-        toast.error("Error", {
+        toast.error("Error2", {
           description:
             axiosError.response?.data.message ||
             "Failed to fetch message settings",
@@ -91,13 +91,20 @@ const page = () => {
       toast(response.data.message);
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
-      toast.error("Error", {
+      toast.error("Error3", {
         description:
           axiosError.response?.data.message ||
           "Failed to fetch message settings",
       });
     }
   };
+  if (!session || !session.user) {
+    return <div>Please Login</div>;
+  }
+  const { username } = session?.user as User;
+  // TODO: do more research
+  const baseUrl = `${window.location.protocol}//${window.location.host}`;
+  const profileUrl = `${baseUrl}/u/${username}`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(profileUrl);
@@ -106,14 +113,6 @@ const page = () => {
     });
   };
 
-  if (!session || !session.user) {
-    return <div>Please Login</div>;
-  }
-
-  const { username } = session?.user as User;
-  // TODO: do more research
-  const baseUrl = `${window.location.protocol}//${window.location.host}`;
-  const profileUrl = `${baseUrl}/u/${username}`;
   return (
     <div className="my-8 mx-4 md:mx-8 lg:mx-auto p-6 bg-white rounded w-full max-w-6xl">
       <h1 className="text-4xl font-bold mb-4">User Dashboard</h1>

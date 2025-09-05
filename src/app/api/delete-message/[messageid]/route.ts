@@ -1,11 +1,14 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/operations";
+import { authOptions } from "../../auth/[...nextauth]/operations";
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
 import { User } from "next-auth";
-import mongoose from "mongoose";
 
-export async function GET(request: Request) {
+export async function DELETE(
+  request: Request,
+  { params }: { params: { messageid: string } }
+) {
+  const messageId = params.messageid;
   await dbConnect();
   const session = await getServerSession(authOptions);
   const user: User = session?.user as User;
@@ -21,39 +24,35 @@ export async function GET(request: Request) {
   }
   console.log("Session user:", user);
 
-  const userId = new mongoose.Types.ObjectId(user.id || user._id);
   try {
-    //Aggregation Pipeline
-    const user = await UserModel.aggregate([
-      { $match: { _id: userId } },
-      { $unwind: { path: "$messages", preserveNullAndEmptyArrays: true } }, // <- important
-      { $sort: { "messages.createdAt": -1 } },
-      { $group: { _id: "$_id", messages: { $push: "$messages" } } },
-    ]);
+    const updateResult = await UserModel.updateOne(
+      { _id: user._id },
+      { $pull: { messages: { _id: messageId } } }
+    );
 
-    if (!user || user.length === 0) {
+    if (updateResult.modifiedCount == 0) {
       return Response.json(
         {
           success: false,
-          message: "User Not Found",
+          message: "Message not found or already deleted",
         },
-        { status: 401 }
+        { status: 404 }
       );
     }
 
     return Response.json(
       {
         success: true,
-        messages: user[0].messages,
+        messages: "Message Deleted",
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error("An unexpcted error occured", error);
+    console.error("Error in delete message route ", error);
     return Response.json(
       {
         success: false,
-        message: "An unexpcted error occured",
+        message: "Error deleteing message",
       },
       { status: 500 }
     );

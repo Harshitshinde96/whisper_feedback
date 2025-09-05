@@ -1,5 +1,5 @@
 import { NextAuthOptions } from "next-auth";
-
+export const dynamic = "force-dynamic";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/dbConnect";
@@ -40,7 +40,14 @@ export const authOptions: NextAuthOptions = {
           if (!isPasswordCorrect) {
             throw new Error("Incorrect password");
           } else {
-            return user;
+            // return user;
+            return {
+              _id: (user._id as string | { toString(): string }).toString(),
+              username: user.username,
+              email: user.email,
+              isVerified: user.isVerified,
+              isAcceptingMessages: user.isAcceptingMessages ?? true,
+            };
           }
         } catch (err: any) {
           throw new Error(err instanceof Error ? err.message : String(err));
@@ -55,7 +62,9 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token._id = user._id?.toString();
         token.isVerified = user.isVerified;
-        token.isAcceptingMessages = user.isAcceptingMessages;
+        // token.isAcceptingMessages = user.isAcceptingMessages;
+        token.isAcceptingMessages =
+          user.isAcceptingMessages ?? token.isAcceptingMessages ?? true;
         token.username = user.username;
       }
       return token;
