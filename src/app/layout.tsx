@@ -7,7 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "True Feedback",
+  title: "Whisper Feedback",
   description: "Real feedback from real people.",
 };
 
@@ -21,7 +21,22 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       <AuthProvider>
         <body className={inter.className}>
           {children}
-          <Toaster />
+          <Toaster
+            position="top-right"
+            theme="light"
+            toastOptions={{
+              style: {
+                background: "#fff",
+                color: "#000",
+                border: "1px solid #e5e5e5",
+              },
+              classNames: {
+                toast: "sonner-toast",
+                title: "sonner-title",
+                description: "sonner-description",
+              },
+            }}
+          />
         </body>
       </AuthProvider>
     </html>

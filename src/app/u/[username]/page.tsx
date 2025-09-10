@@ -2,7 +2,6 @@
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -18,17 +17,10 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import { useCompletion } from "@ai-sdk/react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Loader2, Sparkles, MessageSquare, ArrowRight } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 
@@ -37,9 +29,6 @@ const specialChar = "||";
 const parseStringMessages = (messageString: string): string[] => {
   return messageString.split(specialChar);
 };
-
-const initialMessageString =
-  "What's your favorite movie?||Do you have any pets?||What's your dream job?";
 
 export default function SendMessages() {
   const [isLoading, setIsLoading] = useState(false);
@@ -66,14 +55,14 @@ export default function SendMessages() {
         username,
       });
 
-      toast(response.data.message);
+      toast.success(response.data.message);
       form.reset({ ...form.getValues(), content: "" });
     } catch (error) {
       console.log(error);
       const axiosError = error as AxiosError<ApiResponse>;
-      toast.error("Error", {
+      toast.error("Failed to send message", {
         description:
-          axiosError.response?.data.message || "Failed to send message",
+          axiosError.response?.data.message || "An unexpected error occurred",
       });
     } finally {
       setIsLoading(false);
@@ -82,7 +71,7 @@ export default function SendMessages() {
 
   const fetchSuggestedMessages = async () => {
     setIsLoadingSuggestions(true);
-    setSuggestedMessages([]); // Clear previous suggestions
+    setSuggestedMessages([]);
     try {
       const response = await fetch("/api/suggest-messages", {
         method: "POST",
@@ -107,95 +96,144 @@ export default function SendMessages() {
   };
 
   return (
-    <>
-      <div className="container mx-auto my-8 p-6 bg-white rounded max-w-4xl">
-        <h1 className="text-4xl font-bold mb-6 text-center">
-          Public Profile Link
-        </h1>
-
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="content"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Send Anonymous Message to @{username}</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Write your anonymous message here"
-                      className="resize-none h-25"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="flex justify-center">
-              {isLoading ? (
-                <Button disabled>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Please wait
-                </Button>
-              ) : (
-                <Button type="submit" disabled={isLoading || !messageContent}>
-                  Send It
-                </Button>
-              )}
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto max-w-4xl">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex justify-center mb-4">
+              <div className="bg-black h-16 w-16 rounded-lg flex items-center justify-center">
+                <MessageSquare className="h-8 w-8 text-white" />
+              </div>
             </div>
-          </form>
-        </Form>
-
-        <div className="space-y-4 my-8">
-          <div className="space-y-2">
-            <Button
-              onClick={fetchSuggestedMessages}
-              className="my-4"
-              disabled={isLoadingSuggestions}
-            >
-              {isLoadingSuggestions ? "Generating..." : "Suggest Message"}
-            </Button>
-            <p>Click on message below to select it</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Send Anonymous Message
+            </h1>
+            <p className="text-gray-600">
+              Send an anonymous message to @{username}
+            </p>
           </div>
 
-          <Card>
-            <CardHeader>
-              <h3 className="text-xl font-semibold">Messages</h3>
-            </CardHeader>
-            <CardContent className="flex flex-col space-y-4">
-              {isLoadingSuggestions ? (
-                <div className="flex items-center justify-center">
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  <p className="text-gray-500">Generating suggestions...</p>
-                </div>
-              ) : suggestedMessages.length > 0 ? (
-                suggestedMessages.map((message, index) => (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    className="mb-2 w-full whitespace-normal"
-                    onClick={() => handleMessageClick(message)}
-                  >
-                    {message}
+          {/* Message Form */}
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-6 mb-8"
+            >
+              <FormField
+                control={form.control}
+                name="content"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-700">
+                      Your Message
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Write your anonymous message here..."
+                        className="resize-none h-32 border-gray-300 focus:border-black focus:ring-black"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="flex justify-center">
+                {isLoading ? (
+                  <Button disabled className="bg-black text-white px-8">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sending...
                   </Button>
-                ))
-              ) : (
-                <p className="text-gray-500">
-                  Click "Suggest Message" to get suggestions
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-        <Separator className="my-6" />
-        <div className="text-center">
-          <div className="mb-3">Get Your Message Board</div>
-          <Link href={"/sign-in"}>
-            <Button>Create Your Account</Button>
-          </Link>
+                ) : (
+                  <Button
+                    type="submit"
+                    disabled={isLoading || !messageContent}
+                    className="bg-black text-white hover:bg-gray-800 px-8"
+                  >
+                    Send Message
+                  </Button>
+                )}
+              </div>
+            </form>
+          </Form>
+
+          <Separator className="my-8" />
+
+          {/* Suggested Messages */}
+          <div className="space-y-6">
+            <div className="text-center">
+              <Button
+                onClick={fetchSuggestedMessages}
+                disabled={isLoadingSuggestions}
+                variant="outline"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50"
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                {isLoadingSuggestions
+                  ? "Generating Suggestions..."
+                  : "Get Message Suggestions"}
+              </Button>
+              <p className="text-sm text-gray-500 mt-2">
+                Click on any suggestion to use it
+              </p>
+            </div>
+
+            <Card className="border-gray-200">
+              <CardHeader className="pb-4">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Suggested Messages
+                </h3>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {isLoadingSuggestions ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-5 w-5 animate-spin text-gray-400 mr-2" />
+                    <p className="text-gray-500">Generating suggestions...</p>
+                  </div>
+                ) : suggestedMessages.length > 0 ? (
+                  suggestedMessages.map((message, index) => (
+                    <Button
+                      key={index}
+                      variant="outline"
+                      className="w-full justify-start h-auto py-3 px-4 text-left whitespace-normal border-gray-200 hover:bg-gray-50"
+                      onClick={() => handleMessageClick(message)}
+                    >
+                      <span className="flex-1">{message}</span>
+                    </Button>
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500">
+                      Click above to get message suggestions
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          <Separator className="my-8" />
+
+          {/* Call to Action */}
+          <div className="text-center">
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                Want to receive anonymous messages?
+              </h3>
+              <p className="text-gray-600">
+                Create your own message board and share it with others
+              </p>
+            </div>
+            <Link href={"/sign-in"}>
+              <Button className="bg-black text-white hover:bg-gray-800">
+                Create Your Account
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
