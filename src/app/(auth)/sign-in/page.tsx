@@ -128,7 +128,7 @@ const Page = () => {
 
         <div className="text-center">
           <p className="text-gray-600">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link
               href="/sign-up"
               className="text-black font-medium hover:text-gray-800 transition-colors"

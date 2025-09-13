@@ -40,10 +40,10 @@ const VerifyAccount = () => {
       toast.success(response.data.message);
       router.replace("/sign-in");
     } catch (error) {
-      console.error("Error in verification", error);
-      const axiosError = error as AxiosError<ApiResponse>;
-      let errorMessage = axiosError.response?.data.message;
-      toast.error(`Verification Failed: ${errorMessage ?? "Unknown error"}`);
+  console.error("Error in verification", error);
+  const axiosError = error as AxiosError<ApiResponse>;
+  const errorMessage = axiosError.response?.data.message;
+  toast.error(`Verification Failed: ${errorMessage ?? "Unknown error"}`);
     }
   };
 
@@ -107,7 +107,7 @@ const VerifyAccount = () => {
 
         <div className="text-center">
           <p className="text-gray-600 text-sm">
-            Didn't receive the code?{" "}
+            Didn&apos;t receive the code?{" "}
             <button
               className="text-black font-medium hover:text-gray-800 transition-colors"
               onClick={() =>

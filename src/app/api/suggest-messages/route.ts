@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export const runtime = "edge";
 
-export async function POST(req: Request) {
+export async function POST() {
   // console.log("API Route called");
 
   try {
@@ -42,8 +42,7 @@ export async function POST(req: Request) {
     // deepseek/deepseek-r1-0528:free
 
     if (!response.ok) {
-      const errorData = await response.text();
-      // console.error("OpenRouter API error:", response.status, errorData);
+      await response.text();
       throw new Error(`OpenRouter API error: ${response.statusText}`);
     }
 

@@ -2,13 +2,12 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/operations";
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
-import { User } from "next-auth";
 import mongoose from "mongoose";
 
-export async function GET(request: Request) {
+export async function GET() {
   await dbConnect();
   const session = await getServerSession(authOptions);
-  const user: User = session?.user as User;
+  const user = session?.user;
 
   if (!session || !session.user) {
     return Response.json(
@@ -20,8 +19,10 @@ export async function GET(request: Request) {
     );
   }
   console.log("Session user:", user);
-
-  const userId = new mongoose.Types.ObjectId(user.id || user._id);
+  if (!user || !("_id" in user)) {
+    return new Response(JSON.stringify({ success: false, message: "User not found in session." }), { status: 401 });
+  }
+  const userId = new mongoose.Types.ObjectId((user as { _id: string })._id);
   try {
     //Aggregation Pipeline
     const user = await UserModel.aggregate([

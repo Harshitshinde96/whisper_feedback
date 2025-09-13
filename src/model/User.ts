@@ -1,5 +1,4 @@
-import mongoose, { Schema, Document, Types } from "mongoose";
-import { connect } from "node:net";
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface Message extends Document {
   // _id: Types.ObjectId;

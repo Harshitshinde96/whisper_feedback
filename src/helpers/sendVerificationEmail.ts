@@ -1,7 +1,6 @@
 import { resend } from "@/lib/resend";
 import VerificationEmail from "../../emails/VerificationEmail";
 import { ApiResponse } from "@/types/ApiResponse";
-import React from "react";
 
 export async function sendVerificationEmail(
   email: string,
@@ -9,7 +8,7 @@ export async function sendVerificationEmail(
   verifyCode: string
 ): Promise<ApiResponse> {
   try {
-    const { data, error } = await resend.emails.send({
+    const { error } = await resend.emails.send({
       from: "onboarding@resend.dev", // Use Resend's test domain or your verified domain
       to: email,
       subject: "Whisper Feedback | Verification Code",

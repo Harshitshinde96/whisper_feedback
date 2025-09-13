@@ -120,7 +120,7 @@ const Page = () => {
           </p>
           <div className="bg-gray-100 rounded-lg p-4">
             <p className="text-sm text-gray-500">
-              If you're not redirected automatically, please login to continue
+              If you&apos;re not redirected automatically, please login to continue
             </p>
           </div>
         </div>

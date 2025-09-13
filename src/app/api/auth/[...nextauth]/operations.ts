@@ -14,9 +14,12 @@ export const authOptions: NextAuthOptions = {
         identifier: { label: "Email or Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials: any): Promise<any> {
+      async authorize(credentials: Record<"identifier" | "password", string> | undefined) {
         await dbConnect();
         try {
+          if (!credentials) {
+            throw new Error("Missing credentials");
+          }
           const user = await UserModel.findOne({
             $or: [
               { email: credentials.identifier },
@@ -40,8 +43,9 @@ export const authOptions: NextAuthOptions = {
           if (!isPasswordCorrect) {
             throw new Error("Incorrect password");
           } else {
-            // return user;
+            // NextAuth expects a user object with at least an 'id' property
             return {
+              id: (user._id as string | { toString(): string }).toString(),
               _id: (user._id as string | { toString(): string }).toString(),
               username: user.username,
               email: user.email,
@@ -49,7 +53,7 @@ export const authOptions: NextAuthOptions = {
               isAcceptingMessages: user.isAcceptingMessages ?? true,
             };
           }
-        } catch (err: any) {
+        } catch (err) {
           throw new Error(err instanceof Error ? err.message : String(err));
         }
       },
