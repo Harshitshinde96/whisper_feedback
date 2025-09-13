@@ -12,19 +12,30 @@ export async function sendVerificationEmail(
     const { data, error } = await resend.emails.send({
       from: "onboarding@resend.dev", // Use Resend's test domain or your verified domain
       to: email,
-      subject: "True Feedback | Verification Code",
+      subject: "Whisper Feedback | Verification Code",
       react: VerificationEmail({ username, otp: verifyCode }),
     });
 
     if (error) {
       console.error("Resend API error:", error);
-      return { success: false, message: "Failed to send verification email" };
+      return {
+        success: false,
+        message: "Failed to send verification email",
+        isAcceptingMessages: false,
+      };
     }
 
-    
-    return { success: true, message: "Verification email sent successfully" };
+    return {
+      success: true,
+      message: "Verification email sent successfully",
+      isAcceptingMessages: true,
+    };
   } catch (emailError) {
     console.error("Error Sending verification email", emailError);
-    return { success: false, message: "Failed to send verification email" };
+    return {
+      success: false,
+      message: "Failed to send verification email",
+      isAcceptingMessages: false,
+    };
   }
 }
