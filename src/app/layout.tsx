@@ -37,6 +37,19 @@ export default async function RootLayout({ children }: RootLayoutProps) {
               },
             }}
           />
+          <footer className="text-center p-6 bg-gray-800 text-gray-300 ">
+            © {new Date().getFullYear()} Whisper Feedback. All rights reserved.{" "}
+            <br /> <br />
+            Created with ❤️ by{" "}
+            <a
+              href="https://github.com/Harshitshinde96"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:underline"
+            >
+              Harshit Shinde
+            </a>
+          </footer>
         </body>
       </AuthProvider>
     </html>

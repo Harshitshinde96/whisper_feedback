@@ -156,11 +156,6 @@ export default function Home() {
           </div>
         </section>
       </main>
-
-      {/* Footer */}
-      <footer className="text-center p-6 bg-gray-800 text-gray-300">
-        © {new Date().getFullYear()} Whisper Feedback. All rights reserved.
-      </footer>
     </div>
   );
 }
