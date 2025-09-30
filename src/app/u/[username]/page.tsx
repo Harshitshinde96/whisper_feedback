@@ -34,6 +34,11 @@ export default function SendMessages() {
   const [suggestedMessages, setSuggestedMessages] = useState<string[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const params = useParams<{ username: string }>();
+  const [draftMessage, setDraftMessage] = useState("");
+  const [refinedMessage, setRefinedMessage] = useState<string | null>(null);
+  const [isRefining, setIsRefining] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
   const username = params.username;
 
   const form = useForm<z.infer<typeof messageSchema>>({
@@ -56,6 +61,9 @@ export default function SendMessages() {
 
       toast.success(response.data.message);
       form.reset({ ...form.getValues(), content: "" });
+      setIsSuccess(true);
+
+      setTimeout(() => setIsSuccess(false), 2000); // hide after 2s
     } catch (error) {
       console.log(error);
       const axiosError = error as AxiosError<ApiResponse>;
@@ -68,32 +76,52 @@ export default function SendMessages() {
     }
   };
 
-  const fetchSuggestedMessages = async () => {
-    setIsLoadingSuggestions(true);
-    setSuggestedMessages([]);
+  // const fetchSuggestedMessages = async () => {
+  //   setIsLoadingSuggestions(true);
+  //   setSuggestedMessages([]);
+  //   try {
+  //     const response = await fetch("/api/suggest-messages", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error("Failed to fetch suggestions");
+  //     }
+
+  //     const data = await response.json();
+  //     const parsedMessages = parseStringMessages(data.message);
+  //     setSuggestedMessages(parsedMessages);
+  //   } catch (error) {
+  //     console.error("Error fetching messages:", error);
+  //     toast.error("Failed to fetch suggestions");
+  //   } finally {
+  //     setIsLoadingSuggestions(false);
+  //   }
+  // };
+
+  const handleRefineMessage = async () => {
+    setIsRefining(true);
+    setRefinedMessage(null);
     try {
-      const response = await fetch("/api/suggest-messages", {
+      const res = await fetch("/api/refine-message", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ draft: draftMessage }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch suggestions");
-      }
+      if (!res.ok) throw new Error("Failed to refine message");
 
-      const data = await response.json();
-      const parsedMessages = parseStringMessages(data.message);
-      setSuggestedMessages(parsedMessages);
-    } catch (error) {
-      console.error("Error fetching messages:", error);
-      toast.error("Failed to fetch suggestions");
+      const data = await res.json();
+      setRefinedMessage(data.message);
+    } catch (err) {
+      toast.error("Failed to refine message");
     } finally {
-      setIsLoadingSuggestions(false);
+      setIsRefining(false);
     }
   };
-
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto max-w-4xl">
@@ -138,7 +166,7 @@ export default function SendMessages() {
                   </FormItem>
                 )}
               />
-              <div className="flex justify-center">
+              <div className="flex justify-center items-center space-x-3">
                 {isLoading ? (
                   <Button disabled className="bg-black text-white px-8">
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -153,6 +181,25 @@ export default function SendMessages() {
                     Send Message
                   </Button>
                 )}
+
+                {isSuccess && (
+                  <div className="flex items-center text-green-600 transition-opacity duration-300">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6 ml-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
+                )}
               </div>
             </form>
           </Form>
@@ -160,7 +207,7 @@ export default function SendMessages() {
           <Separator className="my-8" />
 
           {/* Suggested Messages */}
-          <div className="space-y-6">
+          {/* <div className="space-y-6">
             <div className="text-center">
               <Button
                 onClick={fetchSuggestedMessages}
@@ -210,8 +257,63 @@ export default function SendMessages() {
                 )}
               </CardContent>
             </Card>
-          </div>
+          </div> */}
 
+          {/* Refine Message with AI */}
+          <div className="space-y-6">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-gray-800">
+                Generate your own message with the help of AI
+              </h3>
+              <p className="text-sm text-gray-500 mt-1">
+                Type a draft message below (or leave blank) and let AI refine it
+              </p>
+            </div>
+
+            <Textarea
+              placeholder="Write your draft message here..."
+              value={draftMessage}
+              onChange={(e) => setDraftMessage(e.target.value)}
+              className="resize-none h-24 border-gray-300 focus:border-black focus:ring-black"
+            />
+
+            <div className="flex justify-end">
+              <Button
+                onClick={handleRefineMessage}
+                disabled={isRefining}
+                className="bg-black text-white hover:bg-gray-800 px-8"
+              >
+                {isRefining ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+                    Refining...
+                  </>
+                ) : (
+                  "Refine with AI"
+                )}
+              </Button>
+            </div>
+
+            {refinedMessage && (
+              <Card className="border-gray-200">
+                <CardHeader className="pb-2">
+                  <h3 className="text-md font-semibold text-gray-800">
+                    AI Refined Message
+                  </h3>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-gray-700">{refinedMessage}</p>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-center border-gray-200 hover:bg-gray-50"
+                    onClick={() => handleMessageClick(refinedMessage)}
+                  >
+                    Use This Message
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
           <Separator className="my-8" />
 
           {/* Call to Action */}
