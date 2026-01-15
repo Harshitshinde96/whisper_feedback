@@ -18,21 +18,21 @@ import { toast } from "sonner";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Sparkles, MessageSquare, ArrowRight } from "lucide-react";
+import { Loader2, MessageSquare, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 
 const specialChar = "||";
 
-const parseStringMessages = (messageString: string): string[] => {
-  return messageString.split(specialChar);
-};
+// const parseStringMessages = (messageString: string): string[] => {
+//   return messageString.split(specialChar);
+// };
 
 export default function SendMessages() {
   const [isLoading, setIsLoading] = useState(false);
-  const [suggestedMessages, setSuggestedMessages] = useState<string[]>([]);
-  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  // const [suggestedMessages, setSuggestedMessages] = useState<string[]>([]);
+  // const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const params = useParams<{ username: string }>();
   const [draftMessage, setDraftMessage] = useState("");
   const [refinedMessage, setRefinedMessage] = useState<string | null>(null);
